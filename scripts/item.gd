@@ -13,6 +13,9 @@ var sprite_name: String = "item_vase"
 @onready var sprite: Sprite2D = $Sprite2D
 
 const LEFT_EDGE_X: float = -100.0
+const SHAKE_THRESHOLD: float = 220.0
+const SHAKE_AMOUNT: float = 6.0
+const SHAKE_SPEED: float = 30.0
 
 var _swiped: bool = false
 
@@ -33,6 +36,10 @@ func _physics_process(delta: float) -> void:
 	position.x -= slide_speed * delta
 	if position.x < LEFT_EDGE_X:
 		queue_free()
+	if position.x < SHAKE_THRESHOLD:
+		sprite.position.x = sin(Time.get_ticks_msec() * 0.001 * SHAKE_SPEED) * SHAKE_AMOUNT
+	else:
+		sprite.position.x = 0.0
 
 
 func _input_event(_viewport: Viewport, event: InputEvent, _shape_idx: int) -> void:

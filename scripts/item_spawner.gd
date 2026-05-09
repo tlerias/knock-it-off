@@ -2,7 +2,8 @@ extends Node
 
 @export var spawn_interval_min: float = 1.0
 @export var spawn_interval_max: float = 2.0
-@export var spawn_x: float = 1900.0
+@export var spawn_x_min: float = 600.0
+@export var spawn_x_max: float = 1700.0
 @export var spawn_y: float = 406.0
 
 const ITEM_SCENE = preload("res://scenes/item.tscn")
@@ -35,7 +36,7 @@ func _spawn_item() -> void:
 		item.item_type = Item.ItemType.NON_FOOD
 		item.sprite_name = NON_FOOD_ITEMS[randi() % NON_FOOD_ITEMS.size()]
 
-	item.position = Vector2(spawn_x, spawn_y)
+	item.position = Vector2(randf_range(spawn_x_min, spawn_x_max), spawn_y)
 	item.item_tapped.connect(_cat._on_item_tapped)
 
 	get_parent().add_child(item)
