@@ -1,21 +1,34 @@
-[gd_scene format=3 uid="uid://cfjp36r6g68s4"]
+[gd_scene load_steps=6 format=3 uid="uid://cfjp36r6g68s4"]
 
 [ext_resource type="Texture2D" uid="uid://717cuheieuxn" path="res://assets/sprites/background/counter_bg.png" id="1"]
 [ext_resource type="Texture2D" uid="uid://bhfxlqieerlyh" path="res://assets/sprites/background/floor.png" id="2"]
-[ext_resource type="Texture2D" uid="uid://csnerf36wcj3q" path="res://assets/sprites/cat/waffles-idle.png" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/cat.tscn" id="3"]
+[ext_resource type="Script" path="res://scripts/item_spawner.gd" id="4"]
 
-[node name="Main" type="Node2D" unique_id=1341980549]
+[sub_resource type="RectangleShape2D" id="1"]
+size = Vector2(2000, 20)
 
-[node name="CounterBg" type="Sprite2D" parent="." unique_id=364222322]
+[node name="Main" type="Node2D"]
+
+[node name="CounterBg" type="Sprite2D" parent="."]
 position = Vector2(960, 540)
 scale = Vector2(1.148, 1.148)
 texture = ExtResource("1")
 
-[node name="Floor" type="Sprite2D" parent="." unique_id=1938224560]
+[node name="Floor" type="Sprite2D" parent="."]
 position = Vector2(964, 1122)
 texture = ExtResource("2")
 
-[node name="Cat" type="Sprite2D" parent="." unique_id=1702329910]
+[node name="Cat" parent="." instance=ExtResource("3")]
 position = Vector2(1394, 358)
-scale = Vector2(3, 3)
-texture = ExtResource("3")
+
+[node name="ItemSpawner" type="Node" parent="."]
+script = ExtResource("4")
+
+[node name="FloorBody" type="StaticBody2D" parent="."]
+collision_layer = 2
+position = Vector2(960, 700)
+groups=["floor"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FloorBody"]
+shape = SubResource("1")

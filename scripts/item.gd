@@ -1,0 +1,57 @@
+extends RigidBody2D
+
+signal item_tapped(item)
+signal item_hit_floor(item)
+
+enum ItemType { FOOD, NON_FOOD }
+
+@export var slide_speed: float = 120.0
+
+var item_type: ItemType = ItemType.NON_FOOD
+var sprite_name: String = "item_vase"
+
+@onready var sprite: Sprite2D = $Sprite2D
+
+const LEFT_EDGE_X: float = -100.0
+
+var _swiped: bool = false
+
+
+func _ready() -> void:
+	freeze = true
+	freeze_mode = RigidBody2D.FREEZE_MODE_KINEMATIC
+	input_pickable = true
+	contact_monitor = true
+	max_contacts_reported = 4
+	sprite.texture = load("res://assets/sprites/items/" + sprite_name + ".png")
+	body_entered.connect(_on_body_entered)
+
+
+func _physics_process(delta: float) -> void:
+	if _swiped:
+		return
+	position.x -= slide_speed * delta
+	if position.x < LEFT_EDGE_X:
+		queue_free()
+
+
+func _input_event(_viewport: Viewport, event: InputEvent, _shape_idx: int) -> void:
+	if _swiped:
+		return
+	if event is InputEventScreenTouch and event.pressed:
+		_on_tapped()
+	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		_on_tapped()
+
+
+func _on_tapped() -> void:
+	_swiped = true
+	linear_velocity = Vector2.ZERO
+	item_tapped.emit(self)
+	freeze = false
+
+
+func _on_body_entered(body: Node) -> void:
+	if body.is_in_group("floor"):
+		item_hit_floor.emit(self)
+		queue_free()
