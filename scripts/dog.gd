@@ -18,8 +18,8 @@ const Item = preload("res://scripts/item.gd")
 
 const LEFT_BOUND: float = 60.0
 const RIGHT_BOUND: float = 1860.0
-const WALK_FRAMES: Array = [0, 2, 4, 3, 1]
-const FRAME_DURATION: float = 0.12
+const WALK_FRAMES: Array[int] = [0, 1, 3, 2]
+const FRAME_DURATION: float = 0.09
 const WALK_FRAME_WIDTH: float = 250.0
 
 var _state: State = State.WALKING
@@ -62,17 +62,26 @@ func _update_walk(delta: float) -> void:
 	sprite.flip_h = _direction > 0.0
 
 	_frame_timer += delta
-	if _frame_timer >= FRAME_DURATION:
-		_frame_timer = 0.0
+	while _frame_timer >= FRAME_DURATION:
+		_frame_timer -= FRAME_DURATION
 		_frame_idx = (_frame_idx + 1) % WALK_FRAMES.size()
 		sprite.frame = WALK_FRAMES[_frame_idx]
 
 	if position.x >= RIGHT_BOUND:
 		position.x = RIGHT_BOUND
-		_direction = -1.0
+		_set_direction(-1.0)
 	elif position.x <= LEFT_BOUND:
 		position.x = LEFT_BOUND
-		_direction = 1.0
+		_set_direction(1.0)
+
+
+func _set_direction(new_direction: float) -> void:
+	if _direction == new_direction:
+		return
+	_direction = new_direction
+	sprite.frame = 4
+	_frame_idx = 0
+	_frame_timer = 0.0
 
 
 func _resume_walking() -> void:
