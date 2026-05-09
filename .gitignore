@@ -1,0 +1,18 @@
+# Godot
+.godot/
+*.uid
+
+# macOS
+.DS_Store
+
+# Export
+*.apk
+*.aab
+*.ipa
+*.exe
+*.x86_64
+*.html
+*.js
+*.pck
+*.wasm
+*.zip
