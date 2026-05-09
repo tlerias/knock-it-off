@@ -18,7 +18,7 @@ const Item = preload("res://scripts/item.gd")
 
 const LEFT_BOUND: float = 60.0
 const RIGHT_BOUND: float = 1860.0
-const WALK_FRAMES: Array[int] = [0, 1, 3, 2]
+const WALK_FRAMES: Array[int] = [0, 1, 2, 3, 4]
 const FRAME_DURATION: float = 0.075
 const WALK_FRAME_WIDTH: float = 250.0
 
