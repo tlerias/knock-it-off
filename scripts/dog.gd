@@ -60,7 +60,7 @@ func _process(delta: float) -> void:
 
 func _update_walk(delta: float) -> void:
 	position.x += patrol_speed * _direction * delta
-	sprite.flip_h = _direction < 0.0
+	sprite.flip_h = _direction > 0.0
 
 	_frame_timer += delta
 	if _frame_timer >= FRAME_DURATION:
