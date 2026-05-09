@@ -8,14 +8,15 @@
 
 config_version=5
 
+[autoload]
+
+ScoreManager="*res://scripts/score_manager.gd"
+
 [animation]
 
 compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 [application]
-
-autoload/ScoreManager="*res://scripts/score_manager.gd"
-
 
 config/name="Knock It Off!"
 run/main_scene="res://scenes/main.tscn"
