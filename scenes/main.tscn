@@ -1,0 +1,21 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/background/counter_bg.png" id="1"]
+[ext_resource type="Texture2D" path="res://assets/sprites/background/floor.png" id="2"]
+[ext_resource type="Texture2D" path="res://assets/sprites/cat/waffles-idle.png" id="3"]
+
+[node name="Main" type="Node2D"]
+
+[node name="CounterBg" type="Sprite2D" parent="."]
+texture = ExtResource("1")
+position = Vector2(960, 540)
+scale = Vector2(1.148, 1.148)
+
+[node name="Floor" type="Sprite2D" parent="."]
+texture = ExtResource("2")
+position = Vector2(960, 960)
+
+[node name="Cat" type="Sprite2D" parent="."]
+texture = ExtResource("3")
+position = Vector2(1400, 570)
+scale = Vector2(3, 3)
