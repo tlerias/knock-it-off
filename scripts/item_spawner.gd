@@ -2,7 +2,7 @@ extends Node
 
 @export var spawn_interval_min: float = 1.0
 @export var spawn_interval_max: float = 2.0
-@export var spawn_x_min: float = 600.0
+@export var spawn_x_min: float = 300.0
 @export var spawn_x_max: float = 1700.0
 @export var spawn_y: float = 406.0
 

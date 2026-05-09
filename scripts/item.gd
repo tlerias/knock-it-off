@@ -2,22 +2,23 @@ extends RigidBody2D
 
 signal item_tapped(item)
 signal item_hit_floor(item)
+signal item_hit_dog(item)
 
 enum ItemType { FOOD, NON_FOOD }
 
-@export var slide_speed: float = 120.0
+@export var item_lifetime: float = 4.0
+@export var shake_threshold: float = 1.2
 
 var item_type: ItemType = ItemType.NON_FOOD
 var sprite_name: String = "item_vase"
 
 @onready var sprite: Sprite2D = $Sprite2D
 
-const LEFT_EDGE_X: float = -100.0
-const SHAKE_THRESHOLD: float = 220.0
 const SHAKE_AMOUNT: float = 6.0
 const SHAKE_SPEED: float = 30.0
 
 var _swiped: bool = false
+var _lifetime_remaining: float = 0.0
 
 
 func _ready() -> void:
@@ -28,15 +29,17 @@ func _ready() -> void:
 	max_contacts_reported = 4
 	sprite.texture = load("res://assets/sprites/items/" + sprite_name + ".png")
 	body_entered.connect(_on_body_entered)
+	_lifetime_remaining = item_lifetime
 
 
 func _physics_process(delta: float) -> void:
 	if _swiped:
 		return
-	position.x -= slide_speed * delta
-	if position.x < LEFT_EDGE_X:
+	_lifetime_remaining -= delta
+	if _lifetime_remaining <= 0.0:
 		queue_free()
-	if position.x < SHAKE_THRESHOLD:
+		return
+	if _lifetime_remaining < shake_threshold:
 		sprite.position.x = sin(Time.get_ticks_msec() * 0.001 * SHAKE_SPEED) * SHAKE_AMOUNT
 	else:
 		sprite.position.x = 0.0
@@ -53,6 +56,7 @@ func _input_event(_viewport: Viewport, event: InputEvent, _shape_idx: int) -> vo
 
 func _on_tapped() -> void:
 	_swiped = true
+	sprite.position.x = 0.0
 	linear_velocity = Vector2.ZERO
 	item_tapped.emit(self)
 	freeze = false
