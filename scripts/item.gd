@@ -49,6 +49,7 @@ func _on_tapped() -> void:
 	linear_velocity = Vector2.ZERO
 	item_tapped.emit(self)
 	freeze = false
+	angular_velocity = randf_range(4.0, 7.0) * (1.0 if randf() > 0.5 else -1.0)
 
 
 func _on_body_entered(body: Node) -> void:
