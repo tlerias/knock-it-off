@@ -21,6 +21,8 @@ const LEFT_BOUND: float = 60.0
 const RIGHT_BOUND: float = 1860.0
 const WALK_FRAMES: Array = [0, 1, 2, 3, 4, 3, 2, 1]
 const FRAME_DURATION: float = 0.12
+const WALK_FRAME_WIDTH: float = 250.0  # one frame's pixel width in the walk sheet
+@export var dog_scale: float = 2.0
 
 var _state: State = State.WALKING
 var _direction: float = 1.0
@@ -33,6 +35,7 @@ func _ready() -> void:
 	_set_walk_sprite()
 	position.x = LEFT_BOUND
 	hit_area.body_entered.connect(_on_item_hit)
+	sprite.scale = Vector2(dog_scale, dog_scale)
 
 
 func _process(delta: float) -> void:
@@ -75,6 +78,8 @@ func _update_walk(delta: float) -> void:
 
 
 func _on_item_hit(body: Node) -> void:
+	if _state != State.WALKING:
+		return
 	if not (body is RigidBody2D and body._swiped):
 		return
 	body.item_hit_dog.emit(body)
@@ -91,6 +96,7 @@ func _react_food() -> void:
 	sprite.hframes = 1
 	sprite.vframes = 1
 	sprite.frame = 0
+	sprite.scale = Vector2.ONE * (WALK_FRAME_WIDTH * dog_scale / EAT_TEXTURE.get_width())
 	_action_timer = eat_duration
 
 
@@ -100,6 +106,7 @@ func _react_non_food() -> void:
 	sprite.hframes = 1
 	sprite.vframes = 1
 	sprite.frame = 0
+	sprite.scale = Vector2.ONE * (WALK_FRAME_WIDTH * dog_scale / YELP_TEXTURE.get_width())
 	_direction = 1.0
 	sprite.flip_h = false
 
@@ -109,3 +116,4 @@ func _set_walk_sprite() -> void:
 	sprite.hframes = 2
 	sprite.vframes = 3
 	sprite.frame = WALK_FRAMES[_frame_idx]
+	sprite.scale = Vector2(dog_scale, dog_scale)
