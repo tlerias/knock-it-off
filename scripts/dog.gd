@@ -1,7 +1,5 @@
 extends Node2D
 
-signal dog_caught_item(item)
-
 enum State { WALKING, EATING, YELPING, OFFSCREEN }
 
 const WALK_TEXTURE = preload("res://assets/sprites/dog/dog_walk_sheet.png")
@@ -13,29 +11,53 @@ const Item = preload("res://scripts/item.gd")
 @export var run_speed: float = 300.0
 @export var return_delay: float = 3.0
 @export var eat_duration: float = 1.5
+@export var dog_scale: float = 2.0
 
-@onready var sprite: Sprite2D = $Sprite2D
+@onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var hit_area: Area2D = $HitArea
 
 const LEFT_BOUND: float = 60.0
 const RIGHT_BOUND: float = 1860.0
-const WALK_FRAMES: Array = [0, 1, 2, 3, 4, 3, 2, 1]
-const FRAME_DURATION: float = 0.12
-const WALK_FRAME_WIDTH: float = 250.0  # one frame's pixel width in the walk sheet
-@export var dog_scale: float = 2.0
+const WALK_FRAME_WIDTH: float = 250.0
 
 var _state: State = State.WALKING
 var _direction: float = 1.0
-var _frame_idx: int = 0
-var _frame_timer: float = 0.0
 var _action_timer: float = 0.0
 
 
 func _ready() -> void:
-	_set_walk_sprite()
+	_setup_animations()
+	sprite.scale = Vector2(dog_scale, dog_scale)
 	position.x = LEFT_BOUND
 	hit_area.body_entered.connect(_on_item_hit)
-	sprite.scale = Vector2(dog_scale, dog_scale)
+	sprite.play("walk")
+
+
+func _setup_animations() -> void:
+	var frames := SpriteFrames.new()
+	var frame_w := 250
+	var frame_h := WALK_TEXTURE.get_height() / 3
+
+	frames.add_animation("walk")
+	frames.set_animation_loop("walk", true)
+	frames.set_animation_speed("walk", 8.0)
+	for i in range(5):
+		var atlas := AtlasTexture.new()
+		atlas.atlas = WALK_TEXTURE
+		atlas.region = Rect2((i % 2) * frame_w, (i / 2) * frame_h, frame_w, frame_h)
+		frames.add_frame("walk", atlas)
+
+	frames.add_animation("eat")
+	frames.set_animation_loop("eat", false)
+	frames.set_animation_speed("eat", 1.0)
+	frames.add_frame("eat", EAT_TEXTURE)
+
+	frames.add_animation("yelp")
+	frames.set_animation_loop("yelp", false)
+	frames.set_animation_speed("yelp", 1.0)
+	frames.add_frame("yelp", YELP_TEXTURE)
+
+	sprite.sprite_frames = frames
 
 
 func _process(delta: float) -> void:
@@ -45,8 +67,7 @@ func _process(delta: float) -> void:
 		State.EATING:
 			_action_timer -= delta
 			if _action_timer <= 0.0:
-				_set_walk_sprite()
-				_state = State.WALKING
+				_resume_walking()
 		State.YELPING:
 			position.x += run_speed * delta
 			if position.x > RIGHT_BOUND + 300.0:
@@ -57,24 +78,22 @@ func _process(delta: float) -> void:
 			if _action_timer <= 0.0:
 				position.x = LEFT_BOUND - 200.0
 				_direction = 1.0
-				_set_walk_sprite()
-				_state = State.WALKING
+				_resume_walking()
 
 
 func _update_walk(delta: float) -> void:
 	position.x += patrol_speed * _direction * delta
 	sprite.flip_h = _direction > 0.0
-
-	_frame_timer += delta
-	if _frame_timer >= FRAME_DURATION:
-		_frame_timer = 0.0
-		_frame_idx = (_frame_idx + 1) % WALK_FRAMES.size()
-		sprite.frame = WALK_FRAMES[_frame_idx]
-
 	if position.x >= RIGHT_BOUND:
 		_direction = -1.0
 	elif position.x <= LEFT_BOUND:
 		_direction = 1.0
+
+
+func _resume_walking() -> void:
+	sprite.scale = Vector2(dog_scale, dog_scale)
+	sprite.play("walk")
+	_state = State.WALKING
 
 
 func _on_item_hit(body: Node) -> void:
@@ -92,28 +111,14 @@ func _on_item_hit(body: Node) -> void:
 
 func _react_food() -> void:
 	_state = State.EATING
-	sprite.texture = EAT_TEXTURE
-	sprite.hframes = 1
-	sprite.vframes = 1
-	sprite.frame = 0
 	sprite.scale = Vector2.ONE * (WALK_FRAME_WIDTH * dog_scale / EAT_TEXTURE.get_width())
+	sprite.play("eat")
 	_action_timer = eat_duration
 
 
 func _react_non_food() -> void:
 	_state = State.YELPING
-	sprite.texture = YELP_TEXTURE
-	sprite.hframes = 1
-	sprite.vframes = 1
-	sprite.frame = 0
 	sprite.scale = Vector2.ONE * (WALK_FRAME_WIDTH * dog_scale / YELP_TEXTURE.get_width())
+	sprite.play("yelp")
 	_direction = 1.0
 	sprite.flip_h = false
-
-
-func _set_walk_sprite() -> void:
-	sprite.texture = WALK_TEXTURE
-	sprite.hframes = 2
-	sprite.vframes = 3
-	sprite.frame = WALK_FRAMES[_frame_idx]
-	sprite.scale = Vector2(dog_scale, dog_scale)
