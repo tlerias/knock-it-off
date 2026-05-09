@@ -1,7 +1,7 @@
 extends Node
 
-@export var spawn_interval_min: float = 1.0
-@export var spawn_interval_max: float = 2.0
+@export var spawn_interval_min: float = 0.5
+@export var spawn_interval_max: float = 1.2
 @export var spawn_x_min: float = 300.0
 @export var spawn_x_max: float = 1700.0
 @export var spawn_y: float = 406.0
@@ -38,6 +38,7 @@ func _spawn_item() -> void:
 
 	item.position = Vector2(randf_range(spawn_x_min, spawn_x_max), spawn_y)
 	item.item_tapped.connect(_cat._on_item_tapped)
+	item.item_hit_dog.connect(ScoreManager.on_item_hit_dog)
 
 	get_parent().add_child(item)
 	_schedule_next_spawn()
