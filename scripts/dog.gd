@@ -68,8 +68,10 @@ func _update_walk(delta: float) -> void:
 		sprite.frame = WALK_FRAMES[_frame_idx]
 
 	if position.x >= RIGHT_BOUND:
+		position.x = RIGHT_BOUND
 		_direction = -1.0
 	elif position.x <= LEFT_BOUND:
+		position.x = LEFT_BOUND
 		_direction = 1.0
 
 
