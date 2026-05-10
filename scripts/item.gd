@@ -6,27 +6,26 @@ signal item_hit_dog(item)
 
 enum ItemType { FOOD, NON_FOOD }
 
+const SHAKE_AMOUNT: float = 6.0
+const SHAKE_SPEED: float = 30.0
+const FLOOR_Y: float = 980.0
+const FLOOR_LINGER_TIME: float = 3.0
+
 @export var item_lifetime: float = 4.0
 @export var shake_threshold: float = 1.2
 
 var item_type: ItemType = ItemType.NON_FOOD
 var sprite_name: String = "item_vase"
-
-@onready var sprite: Sprite2D = $Sprite2D
-
-const SHAKE_AMOUNT: float = 6.0
-const SHAKE_SPEED: float = 30.0
-
 var _swiped: bool = false
 var _lifetime_remaining: float = 0.0
+
+@onready var sprite: Sprite2D = $Sprite2D
 
 
 func _ready() -> void:
 	freeze = true
 	freeze_mode = RigidBody2D.FREEZE_MODE_KINEMATIC
-	input_pickable = true
-	contact_monitor = true
-	max_contacts_reported = 4
+	input_pickable = false
 	sprite.texture = load("res://assets/sprites/items/" + sprite_name + ".png")
 	body_entered.connect(_on_body_entered)
 	_lifetime_remaining = item_lifetime
@@ -34,6 +33,8 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	if _swiped:
+		if item_type == ItemType.FOOD and not freeze and position.y >= FLOOR_Y:
+			_land_on_floor()
 		return
 	_lifetime_remaining -= delta
 	if _lifetime_remaining <= 0.0:
@@ -45,15 +46,6 @@ func _physics_process(delta: float) -> void:
 		sprite.position.x = 0.0
 
 
-func _input_event(_viewport: Viewport, event: InputEvent, _shape_idx: int) -> void:
-	if _swiped:
-		return
-	if event is InputEventScreenTouch and event.pressed:
-		_on_tapped()
-	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		_on_tapped()
-
-
 func _on_tapped() -> void:
 	_swiped = true
 	sprite.position.x = 0.0
@@ -63,7 +55,15 @@ func _on_tapped() -> void:
 	angular_velocity = randf_range(4.0, 7.0) * (1.0 if randf() > 0.5 else -1.0)
 
 
+func _land_on_floor() -> void:
+	freeze = true
+	linear_velocity = Vector2.ZERO
+	angular_velocity = 0.0
+	add_to_group("floor_food")
+	get_tree().create_timer(FLOOR_LINGER_TIME).timeout.connect(queue_free)
+
+
 func _on_body_entered(body: Node) -> void:
-	if body.is_in_group("floor"):
+	if body.is_in_group("floor") and item_type == ItemType.NON_FOOD:
 		item_hit_floor.emit(self)
 		queue_free()

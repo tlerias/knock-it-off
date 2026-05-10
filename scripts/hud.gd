@@ -1,5 +1,7 @@
 extends CanvasLayer
 
+signal hint_finished
+
 @onready var score_label: Label = $ScoreLabel
 @onready var timer_label: Label = $TimerLabel
 @onready var hint_label: Label = $HintLabel
@@ -8,6 +10,8 @@ extends CanvasLayer
 
 const FONT = preload("res://assets/sprites/fonts/LoveYaLikeASister-Regular.ttf")
 const FONT_SIZE: int = 56
+
+var _timer_red: bool = false
 
 
 func _ready() -> void:
@@ -28,6 +32,7 @@ func _show_start_hint() -> void:
 	await get_tree().create_timer(4.0).timeout
 	start_hint_label.visible = false
 	start_hint_bg.visible = false
+	hint_finished.emit()
 
 
 func _show_hint() -> void:
@@ -43,10 +48,13 @@ func _on_score_changed(new_score: int) -> void:
 func on_tick(remaining: float) -> void:
 	var secs := ceili(remaining)
 	timer_label.text = "%d:%02d" % [secs / 60, secs % 60]
-	if remaining <= 10.0:
-		timer_label.add_theme_color_override("font_color", Color(1, 0.15, 0.15))
-	else:
-		timer_label.remove_theme_color_override("font_color")
+	var should_be_red := remaining <= 10.0
+	if should_be_red != _timer_red:
+		_timer_red = should_be_red
+		if _timer_red:
+			timer_label.add_theme_color_override("font_color", Color(1, 0.15, 0.15))
+		else:
+			timer_label.remove_theme_color_override("font_color")
 
 
 func show_time_up() -> void:

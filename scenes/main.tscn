@@ -42,6 +42,7 @@ script = ExtResource("7")
 [node name="FloorBody" type="StaticBody2D" parent="." unique_id=1206283850]
 position = Vector2(960, 700)
 collision_layer = 2
+groups = ["floor"]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="FloorBody" unique_id=1031442821]
 position = Vector2(-32, 354)

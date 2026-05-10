@@ -5,11 +5,11 @@ extends Node2D
 
 @onready var sprite: Sprite2D = $Sprite2D
 
-const IDLE_TEXTURES: Array = [
+const IDLE_TEXTURES: Array[Texture2D] = [
 	preload("res://assets/sprites/cat/waffles-idle.png"),
 	preload("res://assets/sprites/cat/prince-idle.png"),
 ]
-const SWIPE_TEXTURES: Array = [
+const SWIPE_TEXTURES: Array[Texture2D] = [
 	preload("res://assets/sprites/cat/waffles-swipe.png"),
 	preload("res://assets/sprites/cat/prince-swipe.png"),
 ]

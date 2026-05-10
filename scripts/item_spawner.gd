@@ -21,6 +21,9 @@ var _active: bool = false
 
 func _ready() -> void:
 	_cat = get_node("../Cat")
+
+
+func start() -> void:
 	_active = true
 	_schedule_next_spawn()
 

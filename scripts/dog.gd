@@ -7,6 +7,14 @@ const EAT_TEXTURE = preload("res://assets/sprites/dog/dog_eat.png")
 const YELP_TEXTURE = preload("res://assets/sprites/dog/dog_yelp.png")
 const Item = preload("res://scripts/item.gd")
 
+const LEFT_BOUND: float = 60.0
+const RIGHT_BOUND: float = 1860.0
+const WALK_FRAMES: Array[int] = [0, 1, 2, 3, 4]
+const FRAME_DURATION: float = 0.24
+const WALK_FRAME_WIDTH: float = 250.0
+const FLOOR_PICKUP_RANGE: float = 160.0
+const FLOOR_Y: float = 980.0
+
 @export var patrol_speed: float = 80.0
 @export var run_speed: float = 300.0
 @export var return_delay: float = 3.0
@@ -15,12 +23,6 @@ const Item = preload("res://scripts/item.gd")
 
 @onready var sprite: Sprite2D = $Sprite2D
 @onready var hit_area: Area2D = $HitArea
-
-const LEFT_BOUND: float = 60.0
-const RIGHT_BOUND: float = 1860.0
-const WALK_FRAMES: Array[int] = [0, 1, 2, 3, 4]
-const FRAME_DURATION: float = 0.24
-const WALK_FRAME_WIDTH: float = 250.0
 
 var _state: State = State.WALKING
 var _direction: float = 1.0
@@ -74,6 +76,22 @@ func _update_walk(delta: float) -> void:
 		position.x = LEFT_BOUND
 		_direction = 1.0
 
+	_check_floor_food()
+
+
+func _check_floor_food() -> void:
+	for item in get_tree().get_nodes_in_group("items"):
+		if not is_instance_valid(item) or not item._swiped:
+			continue
+		if item.item_type != Item.ItemType.FOOD:
+			continue
+		if item.position.y < FLOOR_Y:
+			continue
+		if abs(item.position.x - position.x) < FLOOR_PICKUP_RANGE:
+			ScoreManager.on_floor_food_picked_up(item)
+			item.queue_free()
+			return
+
 
 func _resume_walking() -> void:
 	_set_walk_sprite()
@@ -86,7 +104,6 @@ func _on_item_hit(body: Node) -> void:
 	if not (body is RigidBody2D and body._swiped):
 		return
 	var is_food: bool = body.item_type == Item.ItemType.FOOD
-	# Non-food overrides eating; food cannot interrupt an active state
 	if _state == State.EATING and is_food:
 		return
 	body.item_hit_dog.emit(body)
