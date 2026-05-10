@@ -13,5 +13,8 @@ func _ready() -> void:
 
 
 func _on_time_up() -> void:
-	item_spawner.set_process(false)
+	item_spawner.stop()
 	hud.show_time_up()
+	GameState.final_score = ScoreManager.score
+	await get_tree().create_timer(2.0).timeout
+	get_tree().change_scene_to_file("res://scenes/ui/end_screen.tscn")

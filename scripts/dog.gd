@@ -10,7 +10,7 @@ const Item = preload("res://scripts/item.gd")
 @export var patrol_speed: float = 80.0
 @export var run_speed: float = 300.0
 @export var return_delay: float = 3.0
-@export var eat_duration: float = 1.5
+@export var eat_duration: float = 0.7
 @export var dog_scale: float = 2.0
 
 @onready var sprite: Sprite2D = $Sprite2D
@@ -81,13 +81,17 @@ func _resume_walking() -> void:
 
 
 func _on_item_hit(body: Node) -> void:
-	if _state != State.WALKING:
+	if _state == State.YELPING or _state == State.OFFSCREEN:
 		return
 	if not (body is RigidBody2D and body._swiped):
 		return
+	var is_food: bool = body.item_type == Item.ItemType.FOOD
+	# Non-food overrides eating; food cannot interrupt an active state
+	if _state == State.EATING and is_food:
+		return
 	body.item_hit_dog.emit(body)
 	body.queue_free()
-	if body.item_type == Item.ItemType.FOOD:
+	if is_food:
 		_react_food()
 	else:
 		_react_non_food()

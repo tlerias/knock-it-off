@@ -18,6 +18,7 @@ var _swipe_timer: float = 0.0
 
 
 func _ready() -> void:
+	cat_variant = GameState.selected_cat
 	_set_idle()
 
 

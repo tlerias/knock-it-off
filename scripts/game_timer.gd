@@ -3,7 +3,7 @@ extends Node
 signal time_up
 signal tick(remaining: float)
 
-@export var duration: float = 60.0
+@export var duration: float = 30.0
 
 var time_remaining: float = 0.0
 var _running: bool = false
